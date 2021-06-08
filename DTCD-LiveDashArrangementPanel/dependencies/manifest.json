@@ -5,11 +5,5 @@
     "type": "esm",
     "version": "2.6.12",
     "source": "https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.12/vue.esm.browser.min.js"
-  },
-  {
-    "name": "yFiles",
-    "fileName": "yfiles.js",
-    "type": "esm",
-    "version": "2.3.0"
   }
 ]

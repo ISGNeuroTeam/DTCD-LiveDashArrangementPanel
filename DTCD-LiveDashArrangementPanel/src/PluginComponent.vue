@@ -1,17 +1,17 @@
 <template>
   <div class="container">
     <button class="expand" @click="isExpanded = !isExpanded">
-      <div v-if="isExpanded" :key="'expanded'">
+      <span v-if="isExpanded" :key="'expanded'">
         <i class="fas fa-chevron-right"/>
-      </div>
-      <div v-else :key="'notExpanded'">
+      </span>
+      <span v-else :key="'notExpanded'">
         <i class="fas fa-chevron-left"/>
-      </div>
+      </span>
     </button>
     <div v-if="isExpanded" class="content">
       <select v-model="selectedLayout">
         <option
-          v-for="layout in layoutList"
+          v-for="layout in sortedLayoutList"
           :key="layout"
           :value="layout"
           v-text="layout.toUpperCase()"
@@ -23,7 +23,7 @@
       <button
         class="apply"
         :disabled="isMorphing"
-        @click="morphLayout"
+        @click="applyArrangement"
         v-text="'Apply'"
       />
     </div>
@@ -35,17 +35,11 @@ export default {
   name: 'PluginComponent',
   data: (self) => ({
     // root
+    guid: self.$root.guid,
     logSystem: self.$root.logSystem,
-    graphComponent: self.$root.graphComponent,
-    layoutsMap: {
-      'hierarchic': self.$root.yFiles.HierarchicLayout,
-      'organic': self.$root.yFiles.OrganicLayout,
-      'tree': self.$root.yFiles.TreeLayout,
-      'orthogonal': self.$root.yFiles.OrthogonalLayout,
-      'balloon': self.$root.yFiles.BalloonLayout,
-      'circular': self.$root.yFiles.CircularLayout,
-      'radial': self.$root.yFiles.RadialLayout,
-    },
+    layoutList: self.$root.layoutList,
+    eventSystem: self.$root.eventSystem,
+    liveDashGUID: self.$root.liveDashGUID,
     //component
     isError: false,
     isExpanded: true,
@@ -54,33 +48,40 @@ export default {
     selectedLayout: 'hierarchic',
   }),
   computed: {
-    layoutList () {
-      return Object.keys(this.layoutsMap).sort();
+    sortedLayoutList () {
+      return this.layoutList.sort();
     },
   },
+  mounted () {
+    const customAction = this.eventSystem.createActionByCallback(
+      'applyingArrangementComplete',
+      this.guid,
+      this.applyFinishHandler,
+    );
+    const customEvent = this.eventSystem.createEvent(
+      this.liveDashGUID,
+      'ApplyingArrangementComplete',
+    );
+    this.eventSystem.subscribe(customEvent, customAction);
+    this.logSystem.debug('ApplyingArrangementComplete event subscription');
+  },
   methods: {
-    async morphLayout () {
-      try {
-        this.isError = false;
-        this.isMorphing = true;
-        await this.graphComponent.morphLayout({
-          layout: this.createLayout(),
-          morphDuration: '1s',
-        });
-      } catch (error) {
-        this.isError = true;
-        this.errorText = `Cannot apply ${this.selectedLayout} layout: ${error.message}`;
-      } finally {
-        this.isMorphing = false;
-      }
+    applyArrangement () {
+      this.logSystem.debug(`Trying to apply ${this.selectedLayout} layout`);
+      this.isError = false;
+      this.isMorphing = true;
+      this.eventSystem.createAndPublish(this.guid, 'ApplyArrangement', {
+        layoutType: this.selectedLayout,
+      });
     },
 
-    createLayout () {
-      const layout = new this.layoutsMap[this.selectedLayout]();
-      if (layout instanceof this.layoutsMap['organic']) {
-        layout.minimumNodeDistance = 50;
+    applyFinishHandler (event) {
+      const { status, layoutType, message } = event.args;
+      if (status === 'failed') {
+        this.isError = true;
+        this.errorText = `Cannot apply ${layoutType} layout: ${message}`;
       }
-      return layout;
+      this.isMorphing = false;
     },
   },
 };
