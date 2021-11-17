@@ -1,33 +1,29 @@
-import {
-  ExtensionPlugin,
-  LogSystemAdapter,
-  EventSystemAdapter,
-} from './../../DTCD-SDK';
+import { ExtensionPlugin, LogSystemAdapter, EventSystemAdapter } from './../../DTCD-SDK';
 
 import pluginMeta from './Plugin.Meta';
 import PluginComponent from './PluginComponent.vue';
 
 export class LiveDashArrangementPanel extends ExtensionPlugin {
-
-  static getRegistrationMeta () {
+  static getRegistrationMeta() {
     return pluginMeta;
   }
 
-  static getExtensionInfo () {
+  static getExtensionInfo() {
     return { type: 'panel' };
   }
 
-  constructor (guid, selector, liveDashGUID, layoutList) {
+  constructor(guid, selector, liveDashGUID, layoutList) {
     super();
 
     const logSystem = new LogSystemAdapter(guid, pluginMeta.name);
     logSystem.debug(`Start of ${pluginMeta.name} creation`);
 
-    const eventSystem = new EventSystemAdapter();
+    const eventSystem = new EventSystemAdapter(guid);
+    eventSystem.registerPluginInstance(this, ['ApplyingArrangementComplete']);
     const { default: VueJS } = this.getDependence('Vue');
     const data = { guid, liveDashGUID, layoutList, logSystem, eventSystem };
 
-    new VueJS({
+    this.vue = new VueJS({
       data: () => data,
       render: h => h(PluginComponent),
     }).$mount(selector);
@@ -36,4 +32,8 @@ export class LiveDashArrangementPanel extends ExtensionPlugin {
     logSystem.info(`${pluginMeta.name} initialization complete`);
   }
 
+  applyFinishHandler(event) {
+    const component = this.vue.$children[0];
+    return component.applyFinishHandler(event);
+  }
 }

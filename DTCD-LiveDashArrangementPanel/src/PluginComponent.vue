@@ -2,10 +2,10 @@
   <div class="container">
     <button class="expand" @click="isExpanded = !isExpanded">
       <span v-if="isExpanded" :key="'expanded'">
-        <i class="fas fa-chevron-right"/>
+        <i class="fas fa-chevron-right" />
       </span>
       <span v-else :key="'notExpanded'">
-        <i class="fas fa-chevron-left"/>
+        <i class="fas fa-chevron-left" />
       </span>
     </button>
     <div v-if="isExpanded" class="content">
@@ -18,14 +18,9 @@
         />
       </select>
       <div v-if="isError" class="error" :title="errorText">
-        <i class="fas fa-exclamation-circle"/>
+        <i class="fas fa-exclamation-circle" />
       </div>
-      <button
-        class="apply"
-        :disabled="isMorphing"
-        @click="applyArrangement"
-        v-text="'Apply'"
-      />
+      <button class="apply" :disabled="isMorphing" @click="applyArrangement" v-text="'Apply'" />
     </div>
   </div>
 </template>
@@ -33,7 +28,7 @@
 <script>
 export default {
   name: 'PluginComponent',
-  data: (self) => ({
+  data: self => ({
     // root
     guid: self.$root.guid,
     logSystem: self.$root.logSystem,
@@ -48,34 +43,21 @@ export default {
     selectedLayout: 'hierarchic',
   }),
   computed: {
-    sortedLayoutList () {
+    sortedLayoutList() {
       return this.layoutList.sort();
     },
   },
-  mounted () {
-    const customAction = this.eventSystem.createActionByCallback(
-      'applyingArrangementComplete',
-      this.guid,
-      this.applyFinishHandler,
-    );
-    const customEvent = this.eventSystem.createEvent(
-      this.liveDashGUID,
-      'ApplyingArrangementComplete',
-    );
-    this.eventSystem.subscribe(customEvent, customAction);
-    this.logSystem.debug('ApplyingArrangementComplete event subscription');
-  },
   methods: {
-    applyArrangement () {
+    applyArrangement() {
       this.logSystem.debug(`Trying to apply ${this.selectedLayout} layout`);
       this.isError = false;
       this.isMorphing = true;
-      this.eventSystem.createAndPublish(this.guid, 'ApplyArrangement', {
+      this.eventSystem.publishEvent('ApplyArrangement', {
         layoutType: this.selectedLayout,
       });
     },
 
-    applyFinishHandler (event) {
+    applyFinishHandler(event) {
       const { status, layoutType, message } = event.args;
       if (status === 'failed') {
         this.isError = true;
@@ -91,13 +73,13 @@ export default {
 .container {
   display: flex;
   background-color: #fff;
-  border: thin solid rgba(0, 0, 0, .5);
+  border: thin solid rgba(0, 0, 0, 0.5);
   padding: 10px;
   position: absolute;
   right: 20px;
   bottom: 20px;
   z-index: 1;
-  transition: .3s;
+  transition: 0.3s;
 
   .expand {
     width: 30px;
@@ -121,6 +103,5 @@ export default {
       padding: 4px;
     }
   }
-
 }
 </style>
