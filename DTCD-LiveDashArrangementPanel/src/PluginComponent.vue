@@ -34,7 +34,6 @@ export default {
     logSystem: self.$root.logSystem,
     layoutList: self.$root.layoutList,
     eventSystem: self.$root.eventSystem,
-    liveDashGUID: self.$root.liveDashGUID,
     //component
     isError: false,
     isExpanded: true,
