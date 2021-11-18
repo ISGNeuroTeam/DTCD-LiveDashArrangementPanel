@@ -36,7 +36,7 @@ export default {
     eventSystem: self.$root.eventSystem,
     //component
     isError: false,
-    isExpanded: true,
+    isExpanded: false,
     isMorphing: false,
     errorText: '',
     selectedLayout: 'hierarchic',
