@@ -15,10 +15,10 @@ export class LiveDashArrangementPanel extends ExtensionPlugin {
   constructor(guid, selector, layoutList) {
     super();
 
-    const logSystem = new LogSystemAdapter(guid, pluginMeta.name);
+    const logSystem = new LogSystemAdapter('0.4.0', guid, pluginMeta.name);
     logSystem.debug(`Start of ${pluginMeta.name} creation`);
 
-    const eventSystem = new EventSystemAdapter(guid);
+    const eventSystem = new EventSystemAdapter('0.3.0', guid);
     const { default: VueJS } = this.getDependence('Vue');
     const data = { guid, layoutList, logSystem, eventSystem };
 

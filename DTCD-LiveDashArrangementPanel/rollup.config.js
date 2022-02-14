@@ -3,18 +3,21 @@ import { babel } from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
 import replace from '@rollup/plugin-replace';
 import alias from '@rollup/plugin-alias';
+import json from '@rollup/plugin-json';
 import vue from 'rollup-plugin-vue';
 import path from 'path';
 import pluginMeta from './src/Plugin.Meta';
+import { version } from './package.json';
 
 const watch = Boolean(process.env.ROLLUP_WATCH);
 
-const pluginName = pluginMeta.name;
+const pluginName = pluginMeta.name.replace(/_/g, '-');
 const outputFile = `${pluginName}.js`;
-const outputDirectory = watch ? `./../../DTCD/server/plugins/DTCD-${pluginName}` : `./build`;
+const outputDirectory = watch ? `./../../DTCD/server/plugins/DTCD-${pluginName}_${version}` : `./build`;
 const baseStylesFile = path.resolve(__dirname, 'src/styles/base');
 
 const plugins = [
+  json(),
   nodeResolve({
     jsnext: true,
     preferBuiltins: true,
